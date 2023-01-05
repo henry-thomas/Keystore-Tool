@@ -29,13 +29,13 @@ public class KeyStoreTool {
         String password = "changeit";
         if (args.length > 0) {
             path = args[0];
-        }else{
+        } else {
             LOG.severe("Please pass path to keystore as first argument!");
             return;
         }
         if (args.length >= 2) {
             password = args[1].toString();
-        }else{
+        } else {
             LOG.severe("No Password provided, using 'changit'");
         }
 
@@ -50,10 +50,11 @@ public class KeyStoreTool {
                 String alias = aliases.nextElement();
 
                 ks.deleteEntry(alias);
+                LOG.log(Level.INFO, "Removing: {0}", alias);
             }
 
             ks.store(new FileOutputStream(new File(path)), password.toCharArray());
-
+            LOG.info("Done!");
         } catch (KeyStoreException | IOException | NoSuchAlgorithmException | CertificateException ex) {
             Logger.getLogger(KeyStoreTool.class.getName()).log(Level.SEVERE, null, ex);
         }
