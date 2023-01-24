@@ -12,6 +12,8 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.Date;
 import java.util.Enumeration;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,11 +48,16 @@ public class KeyStoreTool {
 
             Enumeration<String> aliases = ks.aliases();
 
+            Date now = new Date();
             while (aliases.hasMoreElements()) {
                 String alias = aliases.nextElement();
-
-                ks.deleteEntry(alias);
-                LOG.log(Level.INFO, "Removing: {0}", alias);
+                if (ks.getCertificate(alias).getType().equals("X.509")) {
+                    Date exp = ((X509Certificate) ks.getCertificate(alias)).getNotAfter();
+                    if (now.after(exp)) {
+                        System.out.println(alias + " expires " + ((X509Certificate) ks.getCertificate(alias)).getNotAfter());
+                        ks.deleteEntry(alias);
+                    }
+                }
             }
 
             ks.store(new FileOutputStream(new File(path)), password.toCharArray());
